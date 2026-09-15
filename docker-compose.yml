@@ -5,5 +5,10 @@ services:
     restart: unless-stopped
     ports:
       - "3000:80"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - backend_network
+
+networks:
+  backend_network:
+    external: true
+    name: ${BACKEND_NETWORK:-backend-repo_default}
