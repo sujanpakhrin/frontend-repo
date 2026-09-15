@@ -56,3 +56,43 @@ jobs:
             codeykenny/frontend-repo:latest
             codeykenny/frontend-repo:${{ github.sha }}
             codeykenny/frontend-repo:${{ github.run_number }}
+  deploy:
+    name: Deploy Frontend
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Pull latest frontend image
+        run: docker compose pull
+
+      - name: Deploy with Docker Compose
+        run: docker compose up -d
+
+      - name: Verify deployment
+        run: |
+          docker compose ps
+
+          echo "Waiting for frontend..."
+
+          for i in {1..30}; do
+            if curl -fs http://localhost:3000; then
+              echo
+              echo "Frontend is ready!"
+              break
+            fi
+
+            echo "Frontend not ready yet. Waiting 2 seconds..."
+            sleep 2
+          done
+
+          echo "Final frontend check:"
+          curl -f http://localhost:3000
