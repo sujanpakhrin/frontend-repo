@@ -1,0 +1,9 @@
+services:
+  frontend:
+    image: codeykenny/frontend-repo:${IMAGE_TAG:-latest}
+    container_name: assignment11-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
